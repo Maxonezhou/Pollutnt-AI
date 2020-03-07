@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function Temperature(props) {
+export default function Altitude(props) {
 
   const { data } = props;
 
@@ -21,11 +21,11 @@ export default function Temperature(props) {
 
   return(
     <React.Fragment>
-      <h3>Temperature Graph</h3>
+      <h3>Altitude Graph</h3>
       <Container>
         <Grid container spacing={1}>
           <Grid item md={7}>
-            <LineGraph className={classes.tableStyle} data={data} dataKey="temperature" />
+            <LineGraph className={classes.tableStyle} data={data} dataKey="altitude"/>
           </Grid>
           <Grid item md={5}>
             weewoo
