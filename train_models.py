@@ -15,7 +15,7 @@ def plot_series(time, series, format="-", start=0, end=None):
     plt.grid(True)
     plt.show()
 
-def train_model(data_type, retrain_model):
+def train_and_predict(data_type, retrain_model):
     print(data_type)
     time_step = []
     vals = []
@@ -93,7 +93,7 @@ def train_model(data_type, retrain_model):
         tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir, histogram_freq=1)
         if retrain_model:
             history = model.fit(train_set,epochs=50,callbacks=[tensorboard_callback])
-            model.save("LSTM_model.h5")
+            model.save(data_type + "_model.h5")
             print("Saved model")
         else:
             path = os.path.join(os.getcwd(), 'LSTM_model.h5')
