@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PlaceIcon from '@material-ui/icons/Place';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
 import { 
   Modal,
   AppBar,
@@ -11,6 +12,11 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 import LineGraph from './LineGraph';
 import Temperature from './Temperature';
+import Altitude from './Altitude';
+import CO2 from './CO2';
+import Humidity from './Humidity';
+import Pressure from './Pressure';
+import TVOC from './TVOC';
 
 const useStyles = makeStyles(theme => ({
   paper: {
@@ -63,12 +69,20 @@ function a11yProps(index) {
 }
 
 
-export default function Beacon() {
+export default function Beacon(props) {
+  const { data } = props;
 
   const classes = useStyles();
 
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(0);
+ 
+  const [altData, setAltData] = useState([]);
+  const [CO2Data, setCO2Data] = useState([]);
+  const [humData, setHumData] = useState([]);
+  const [presData, setPresData] = useState([]);
+  const [TVOCData, setTVOCData] = useState([]);
+  const [tempData, setTempData] = useState([]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -81,8 +95,56 @@ export default function Beacon() {
     setOpen(false);
   }
 
+  useEffect(() => {
+    if (data[0]) {
+      const timeOffset = data[0].Time;
+       // setting new altitude data
+      const newAltData = data.map(e => {
+        return {altitude: e.Altitude, time: e.Time - timeOffset}
+      })
+      setAltData(newAltData);
+      // setting new CO2 data
+      const newCO2Data = data.map(e => {
+        return {CO2: e.CO2, time: e.Time - timeOffset}
+      })
+      setCO2Data(newCO2Data);
+      // setting new humidity data
+      const newHumData = data.map(e => {
+        return {humidity: e.Humidity, time: e.Time - timeOffset}
+      })
+      setHumData(newHumData);
+      // setting new pressure data
+      const newPresData = data.map(e => {
+        return {pressure: e.Pressure, time: e.Time - timeOffset}
+      })
+      setPresData(newPresData);
+      // setting new TVOC data
+      const newTVOCData = data.map(e => {
+        return {TVOC: e.TVOC, time: e.Time - timeOffset}
+      })
+      setTVOCData(newTVOCData);
+      // setting new temperature data
+      const newTempData = data.map(e => {
+        return {temperature: e.Temperature, time: e.Time - timeOffset}
+      })
+      setTempData(newTempData);
+    }
+   
+  }, [data])
+
+
+  const [rot, setRot] = useState(0);
+
+  const incRot = () => {
+    setRot(rot + 45);
+  }
+
+
   return(
     <div>
+      <ArrowUpwardIcon 
+        style={{transform: `rotate(${rot}deg)`}}
+      />
       <PlaceIcon 
         style={{fontSize: 50}} 
         color="secondary"
@@ -106,35 +168,31 @@ export default function Beacon() {
                 variant="scrollable"
                 scrollButtons="auto"
               >
-                <Tab label="Temperature" {...a11yProps(0)} />
-                <Tab label="Humidity" {...a11yProps(1)} />
-                <Tab label="Air Quality" {...a11yProps(2)} />
-                <Tab label="Data 4" {...a11yProps(3)} />
-                <Tab label="Data 5" {...a11yProps(4)} />
-                <Tab label="Data 6" {...a11yProps(5)} />
-                <Tab label="Data 6" {...a11yProps(6)} />
+                <Tab label="Altitude" {...a11yProps(0)} />
+                <Tab label="CO2" {...a11yProps(1)} />
+                <Tab label="Humidity" {...a11yProps(2)} />
+                <Tab label="Pressure" {...a11yProps(3)} />
+                <Tab label="TVOC" {...a11yProps(4)} />
+                <Tab label="Temperature" {...a11yProps(5)} />
               </Tabs>
             </AppBar>
             <TabPanel value={value} index={0}>
-              <Temperature />
+              <Altitude data={altData} />
             </TabPanel>
             <TabPanel value={value} index={1}>
-              Item Two
+              <CO2 data={CO2Data} />
             </TabPanel>
             <TabPanel value={value} index={2}>
-              Item Three
+              <Humidity data={humData} />
             </TabPanel>
             <TabPanel value={value} index={3}>
-              Item Four
+              <Pressure data={presData} />
             </TabPanel>
             <TabPanel value={value} index={4}>
-              Item Five
+              <TVOC data={TVOCData} />
             </TabPanel>
             <TabPanel value={value} index={5}>
-              Item Six
-            </TabPanel>
-            <TabPanel value={value} index={6}>
-              Item Seven
+              <Temperature data={tempData}/>
             </TabPanel>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import GoogleMapReact from 'google-map-react';
 import Beacon from './components/Beacon';
 import firebase from 'firebase';
@@ -17,6 +17,7 @@ firebase.initializeApp(firebaseConfig);
 export var database = firebase.database();
 
 export default function App() {
+  const [data, setData] = useState(0);
   const heatMapData = {    
     positions: [
       {lat: 59.95, lng: 30.33, weight: 2},
@@ -28,7 +29,15 @@ export default function App() {
     }
   }
 
-  // console.log(database);
+  useEffect(() => {
+    const dataRef = firebase.database().ref('Data');
+    dataRef.on('value', (snapshot) => {
+      let value = snapshot.val();
+      setData(value);
+      
+    })
+  }, []);
+
   return (
     <div style={{ position: 'absolute', top: '10%', left: '5%', height: '80%', width: '90%' }}>
       <GoogleMapReact
@@ -45,6 +54,7 @@ export default function App() {
         <Beacon 
           lat={59.95}
           lng={30.33}
+          data={Object.values(data)}
         />
       </GoogleMapReact>
     </div>
