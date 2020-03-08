@@ -1,4 +1,5 @@
 import tensorflow as tf
+# tf.logging.set_verbosity(tf.logging.ERROR)
 import os
 import datetime
 from firebase import *
@@ -25,22 +26,25 @@ def model_forecast(model, series, window_size):
     return forecast
 
 def plot_series(time, series, format="-", start=0, end=None):
-    plt.plot(time[start:end], series[start:end], format)
-    plt.xlabel("Time")
-    plt.ylabel("Value")
-    plt.grid(True)
-    plt.show()
+    print("")
+    # plt.plot(time[start:end], series[start:end], format)
+    # plt.xlabel("Time")
+    # plt.ylabel("Value")
+    # plt.grid(True)
+    # plt.show()
 
-def train_and_predict(data_type, retrain_model, size):
-    print(data_type)
+def train_and_predict(data_type, retrain_model):
+    # print(data_type)
     time_step = []
     vals = []
 
     col = 0
     if data_type == "CO2":
         col = 1
+        return
     elif data_type == "TVOC":
         col = 2
+        return
     elif data_type == "Pressure":
         col = 3
     elif data_type == "Temperature":
@@ -48,7 +52,7 @@ def train_and_predict(data_type, retrain_model, size):
     elif data_type == "Humidity":
         col = 5
 
-    with open('data.csv') as csvfile:
+    with open('dataset.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         next(reader)
         step=0
@@ -61,19 +65,23 @@ def train_and_predict(data_type, retrain_model, size):
 
         series = np.array(vals)
         time = np.array(time_step)
-        plt.figure(figsize=(10, 6))
-        plot_series(time, series)
+        # plt.figure(figsize=(10, 6))
+        # plot_series(time, series)
 
-        split_time = int(2000/2)
+        split_time = int(len(vals)/2)
         time_train = time[:split_time]
         x_train = series[:split_time]
         time_valid = time[split_time:]
         x_valid = series[split_time:]
         window_size = 30
+        # print(x_train)
+        # print(x_valid)
         
+        # print(series)
+
         if retrain_model == True:
             batch_size = 32
-            shuffle_buffer_size = 1000
+            shuffle_buffer_size = split_time
 
 
             tf.keras.backend.clear_session()
@@ -107,28 +115,28 @@ def train_and_predict(data_type, retrain_model, size):
             history = model.fit(train_set,epochs=50,callbacks=[tensorboard_callback])
             model.save(data_type + "_model.h5")
             print("Saved model")
-        else:
-            path = os.path.join(os.getcwd(), data_type + '_model.h5')
-            model = tf.keras.models.load_model(path)
-            print("Loaded model")
 
-            rnn_forecast = model_forecast(model, series[..., np.newaxis], window_size)
-            rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
-            start=0
-            end=None
-            format="-"
-            plt.figure(figsize=(10, 6))
-            plt.title("Predicted" + data_type)
-            plt.plot(time_valid[start:end], x_valid[start:end], format)
-            plt.xlabel("Time")
-            plt.ylabel("Value")
-            plt.grid(True)
-            plt.plot(time_valid[start:end], rnn_forecast[start:end], format)
-            plt.xlabel("Time")
-            plt.ylabel("Value")
-            plt.grid(True)
-            plt.show()
+        path = os.path.join(os.getcwd(), data_type + '_model.h5')
+        model = tf.keras.models.load_model(path)
+        print("Loaded model")
 
-            tf.keras.metrics.mean_absolute_error(x_valid, rnn_forecast).numpy()
+        rnn_forecast = model_forecast(model, series[..., np.newaxis], window_size)
+        rnn_forecast = rnn_forecast[split_time - window_size:-1, -1, 0]
+        start=0
+        end=None
+        format="-"
+        # plt.figure(figsize=(10, 6))
+        # plt.title("Predicted" + data_type)
+        # plt.plot(time_valid[start:end], x_valid[start:end], format)
+        # plt.xlabel("Time")
+        # plt.ylabel("Value")
+        # plt.grid(True)
+        # plt.plot(time_valid[start:end], rnn_forecast[start:end], format)
+        # plt.xlabel("Time")
+        # plt.ylabel("Value")
+        # plt.grid(True)
+        # plt.show()
 
-            return(rnn_forecast)
+        tf.keras.metrics.mean_absolute_error(x_valid, rnn_forecast).numpy()
+        # print(rnn_forecast)
+        return(rnn_forecast)

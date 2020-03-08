@@ -6,6 +6,7 @@ def initialize():
 
     mqtt.Client.message_contents = ""
     mqtt.Client.message_received = False
+    mqtt.Client.message_topic = ""
 
     client.on_connect = on_connect
     client.on_message = on_message
@@ -22,6 +23,7 @@ def initialize():
 def on_connect(client, userdata, flags, rc):
     print(f'Connected (Result: {rc})')
     client.subscribe('data')
+    client.subscribe('forecast')
     client.publish('test_connect', payload='Connected')
 
 # Callback when message is received
@@ -29,4 +31,5 @@ def on_message(client, userdata, msg):
     # print(f'Message received on topic: {msg.topic}. Message: {msg.payload.decode()}')
     message_str = msg.payload.decode()
     client.message_received = True
+    client.message_topic = msg.topic
     client.message_contents = message_str
