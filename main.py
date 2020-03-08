@@ -113,7 +113,7 @@ while True:
         # print(len(humidity_preds))
 
         curr_time = int(time.time())
-        for i in range(len(ptype)):
+        for i in range(len(humidity_preds)):
             upload_pred = {"Time":curr_time,"Pressure":str(pressure_preds[i]),"Temperature":str(temperature_preds[i]),"Humidity":str(humidity_preds[i]),"CO2":0,"TVOC":0,"Altitude":70}
             # print(upload_pred)
             db.child("Prediction").child(str(curr_time)).set(upload_pred)

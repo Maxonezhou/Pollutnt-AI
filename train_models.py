@@ -137,6 +137,6 @@ def train_and_predict(data_type, retrain_model):
         # plt.grid(True)
         # plt.show()
 
-        tf.keras.metrics.mean_absolute_error(x_valid, rnn_forecast).numpy()
+        # tf.keras.metrics.mean_absolute_error(x_valid, rnn_forecast).numpy()
         # print(rnn_forecast)
         return(rnn_forecast)
