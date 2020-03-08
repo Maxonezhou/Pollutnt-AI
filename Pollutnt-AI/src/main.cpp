@@ -14,26 +14,13 @@
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 
-#include <time.h>
-#include <JSON_Listener.h>
-#include <JSON_Decoder.h>
-#include <DarkSkyWeather.h>
+#include "DarkSkyWeatherUtil.h"
 
 #define SSID "Green Lantern Far"
 #define PASSWORD "lifamily5676007"
 
 #define FIREBASE_HOST "hacktech2020-88888.firebaseio.com"
 #define FIREBASE_AUTH "M5BN2JFJwWPFJ5VaXfVea7KIVQQInocorRFEwVae"
-
-#define TIME_OFFSET 0UL * 3600UL // UTC + 0 hour
-
-#define darksky_api "c2fc337039572f83ee5c25dc2ea92f20"
-#define longitude "-75.697189"
-#define latitude "45.421532"
-String units = "si";  // See notes tab
-String language = ""; // See notes tab
-
-DS_Weather dsw; // Weather forecast library instance
 
 // CSS811
 #define CSS811_ADDR 0x5B
@@ -57,12 +44,22 @@ float DHT11_temp = 0;
 float ave_temp = 0;
 
 // Led Indicators
-#define MQTT_CONNECTED_LED 11
+#define MQTT_CONNECTED_LED 5
 #define WIFI_NOT_CONNECTED_LED 4
 #define STARTED_LED 0
 #define CCS811_LED 18
 #define MLP3115A2_LED 17
 #define DHT11_LED 16
+
+// Dark Sky Weather Data
+float precipIntensity = 0;
+uint8_t precipType = 0;
+uint8_t precipProbability = 0;
+float windSpeed = 0;
+float windGust = 0;
+uint16_t windBearing = 0;
+
+static int fetchWeather = 0;
 
 FirebaseData firebasedataccs;
 
@@ -175,6 +172,8 @@ void setup() {
 
   // DHT11
   dht.begin();
+
+  getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
 }
 
 boolean mqttReconnect() {
@@ -289,35 +288,6 @@ void printAverageTemp(float DHT11_temp, float MLP3115A2_temp, float &ave_temp)
 void loop() {
   digitalWrite(STARTED_LED, HIGH);
 
-  // CCS811
-  if (readCCS811(CO2, TVOC))
-  {
-    //pushCCS811Firebase(CO2, TVOC);
-  }
-
-  // MLP3115A2
-  readMLP3115A2(MLP3115A2_pressure, MLP3115A2_altitude, MLP3115A2_temp);
-
-  // DHT11
-  readDHT11(DHT11_humidity, DHT11_temp);
-
-  printAverageTemp(DHT11_temp, MLP3115A2_temp, ave_temp);
-
-  /*String CO2_data = String(CO2);
-  String TVOC_data = String(TVOC);
-  String Pressure_data = String(MLP3115A2_pressure);
-  String Altitude_data = String(MLP3115A2_altitude);
-  String Temp_data = String(ave_temp);
-
-  String temp_result = CO2_data + TVOC_data + Pressure_data + Altitude_data + Temp_data;*/
-  char result[500];
-  sprintf(result, "%d, %d, %f, %f, %f, %f", CO2, TVOC, (MLP3115A2_pressure / 3377.0), 70.0, ave_temp, DHT11_humidity);
-  if (client.connected())
-  {
-    client.publish("data", result);
-    Serial.println("[INFO] Data just pushed to Solce PubSub+ under topic 'data'");
-  }
-
   if (!client.connected()) {
     digitalWrite(MQTT_CONNECTED_LED, LOW);
   }
@@ -341,7 +311,35 @@ void loop() {
     loopCounter = 0;
   }
 
+  // CCS811
+  if (readCCS811(CO2, TVOC))
+  {
+    //pushCCS811Firebase(CO2, TVOC);
+  }
+
+  // MLP3115A2
+  readMLP3115A2(MLP3115A2_pressure, MLP3115A2_altitude, MLP3115A2_temp);
+
+  // DHT11
+  readDHT11(DHT11_humidity, DHT11_temp);
+
+  printAverageTemp(DHT11_temp, MLP3115A2_temp, ave_temp);
+
+  if (fetchWeather % 50 == 0)
+  {
+    getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
+  }
+
+  char result[1024];
+  sprintf(result, "%d, %d, %f, %f, %f, %f, %f, %d, %d, %f, %f, %d", CO2, TVOC, (MLP3115A2_pressure / 3377.0), 70.0, ave_temp, DHT11_humidity, precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
+  if (client.connected())
+  {
+    client.publish("data", result);
+    Serial.println("[INFO] Data just pushed to Solce PubSub+ under topic 'data'");
+  }
+
   loopCounter++;
+  fetchWeather++;
 
   delay(100);
 }
