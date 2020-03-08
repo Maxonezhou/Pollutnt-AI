@@ -336,7 +336,7 @@ void loop() {
 
   printAverageTemp(DHT11_temp, MLP3115A2_temp, ave_temp);
 
-  if (fetchWeather % 50 == 3)
+  /*if (fetchWeather % 50 == 3)
   {
     getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
   }
@@ -354,7 +354,7 @@ void loop() {
         Serial.println("[INFO] Data just pushed to Solce PubSub+ under topic 'forecast'");
       }
     }
-  }
+  }*/
 
   char result[1024];
   sprintf(result, "%d, %d, %f, %f, %f, %f, %f, %d, %d, %f, %f, %d", CO2, TVOC, (MLP3115A2_pressure / 3377.0), 70.0, ave_temp, DHT11_humidity, precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
