@@ -51,7 +51,7 @@ float ave_temp = 0;
 #define MLP3115A2_LED 17
 #define DHT11_LED 16
 
-// Dark Sky Weather Data
+// Dark Sky Weather Data - current
 float precipIntensity = 0;
 uint8_t precipType = 0;
 uint8_t precipProbability = 0;
@@ -59,7 +59,18 @@ float windSpeed = 0;
 float windGust = 0;
 uint16_t windBearing = 0;
 
+float precipIntensity_daily = 0;
+uint8_t precipType_daily = 0;
+uint8_t precipProbability_daily = 0;
+float temp_daily = 0;
+float humidity_daily = 0;
+float pressure_daily = 0;
+float windSpeed_daily = 0;
+float windGust_daily = 0;
+uint16_t windBearing_daily = 0;
+
 static int fetchWeather = 0;
+static int fetchWeatherDaily = 0;
 
 FirebaseData firebasedataccs;
 
@@ -173,7 +184,7 @@ void setup() {
   // DHT11
   dht.begin();
 
-  getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
+  //getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
 }
 
 boolean mqttReconnect() {
@@ -325,9 +336,24 @@ void loop() {
 
   printAverageTemp(DHT11_temp, MLP3115A2_temp, ave_temp);
 
-  if (fetchWeather % 50 == 0)
+  if (fetchWeather % 50 == 3)
   {
     getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
+  }
+
+  if (fetchWeatherDaily % 50 == 3)
+  {
+    for (int i = 0; i < 3; i++) // get three day forecast
+    {
+      getForecastDay(i, precipIntensity_daily, precipType_daily, precipProbability_daily, temp_daily, humidity_daily, pressure_daily, windSpeed_daily, windGust_daily, windBearing_daily);
+      char dailyForecast[256];
+      sprintf(dailyForecast, "%d, %f, %d, %d, %f, %f, %f, %f, %f, %u", i, precipIntensity_daily, precipType_daily, precipProbability_daily, temp_daily, humidity_daily, pressure_daily, windSpeed_daily, windGust_daily, windBearing_daily);
+      if (client.connected())
+      {
+        client.publish("forecast", dailyForecast);
+        Serial.println("[INFO] Data just pushed to Solce PubSub+ under topic 'forecast'");
+      }
+    }
   }
 
   char result[1024];
@@ -340,6 +366,7 @@ void loop() {
 
   loopCounter++;
   fetchWeather++;
+  fetchWeatherDaily++;
 
   delay(100);
 }

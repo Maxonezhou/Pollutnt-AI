@@ -41,7 +41,7 @@ void getCurrentWeather(float& precipIntensity, uint8_t &precipType, uint8_t &pre
 
   time_t time;
 
-  Serial.print("\nRequesting weather information from DarkSky.net... ");
+  Serial.print("\nRequesting current weather information from DarkSky.net... ");
 
   dsw.getForecast(current, hourly, daily, api_key, latitude, longitude, units, language);
 
@@ -65,6 +65,55 @@ void getCurrentWeather(float& precipIntensity, uint8_t &precipType, uint8_t &pre
 
   Serial.print("[INFO] Current wind dirn        : "); Serial.println(current->windBearing);
   windBearing = current->windBearing;
+}
+
+void getForecastDay(int day, float& precipIntensity, uint8_t &precipType, uint8_t &precipProbability,
+                    float& temp, float& humidity, float& pressure, float& windSpeed, float& windGust, 
+                    uint16_t &windBearing)
+{
+  // Create the structures that hold the retrieved weather
+  DSW_current *current = new DSW_current;
+  DSW_hourly *hourly = new DSW_hourly;
+  DSW_daily  *daily = new DSW_daily;
+
+  time_t time;
+  int i = day;
+
+  Serial.print("\nRequesting daily weather information from DarkSky.net... ");
+
+  dsw.getForecast(current, hourly, daily, api_key, latitude, longitude, units, language);
+
+  Serial.println("Daily Weather Data from Dark Sky\n");
+
+  Serial.println("############### Daily weather ###############\n");
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("precipIntensity   : "); Serial.println(daily->precipIntensity[i]);
+  precipIntensity = daily->precipIntensity[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("precipType        : "); Serial.println(daily->precipType[i]);
+  precipType = daily->precipType[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("precipProbability : "); Serial.println(daily->precipProbability[i]);
+  precipProbability = daily->precipProbability[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("temperatureHigh   : "); Serial.println(daily->temperatureHigh[i]);
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("temperatureLow    : "); Serial.println(daily->temperatureLow[i]);
+  temp = ((daily->precipProbability[i]) + (daily->temperatureLow[i])) / 2.0;
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("humidity          : "); Serial.println(daily->humidity[i]);
+  humidity = daily->humidity[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("pressure          : "); Serial.println(daily->pressure[i]);
+  pressure = (daily->pressure[i]) / 3377.0;
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("windSpeed         : "); Serial.println(daily->windSpeed[i]);
+  windSpeed = daily->windSpeed[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" "); Serial.print("windGust          : "); Serial.println(daily->windGust[i]);
+  windGust = daily->windGust[i];
+
+  Serial.print("Day: "); Serial.print(i); Serial.print(" ");Serial.print("windBearing        : "); Serial.println(daily->windBearing[i]);
+  windBearing = daily->windBearing[i];
 }
 
 void printCurrentWeather()
