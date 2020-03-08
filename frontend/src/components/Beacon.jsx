@@ -70,7 +70,7 @@ function a11yProps(index) {
 
 
 export default function Beacon(props) {
-  const { data } = props;
+  const { data, prediction } = props;
 
   const classes = useStyles();
 
@@ -78,11 +78,19 @@ export default function Beacon(props) {
   const [value, setValue] = useState(0);
  
   const [altData, setAltData] = useState([]);
+
   const [CO2Data, setCO2Data] = useState([]);
+
   const [humData, setHumData] = useState([]);
+  const [humPred, setHumPred] = useState([]);
+
   const [presData, setPresData] = useState([]);
+  const [presPred, setPresPred] = useState([]);
+
   const [TVOCData, setTVOCData] = useState([]);
+
   const [tempData, setTempData] = useState([]);
+  const [tempPred, setTempPred] = useState([]);
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -96,13 +104,16 @@ export default function Beacon(props) {
   }
 
   useEffect(() => {
-    if (data[0]) {
+    if (data && prediction && data[0] && prediction[0]) {
       const timeOffset = data[0].Time;
        // setting new altitude data
       const newAltData = data.map(e => {
-        return {altitude: e.Altitude, time: e.Time - timeOffset}
-      })
-      setAltData(newAltData);
+        return {Altitude: e.Altitude, time: e.Time - timeOffset}
+      });
+      const newAltPred = prediction.map(e => {
+        return {'Altitude Prediction': e.Altitude, time: e.Time - timeOffset}
+      });
+      setAltData([...newAltData, ...newAltPred]);
       // setting new CO2 data
       const newCO2Data = data.map(e => {
         return {CO2: e.CO2, time: e.Time - timeOffset}
@@ -110,14 +121,20 @@ export default function Beacon(props) {
       setCO2Data(newCO2Data);
       // setting new humidity data
       const newHumData = data.map(e => {
-        return {humidity: e.Humidity, time: e.Time - timeOffset}
+        return {Humidity: e.Humidity, time: e.Time - timeOffset}
       })
-      setHumData(newHumData);
+      const newHumPred = prediction.map(e => {
+        return {'Humidity Prediction': e.Humidity, time: e.Time - timeOffset}
+      })
+      setHumData([...newHumData, ...newHumPred]);
       // setting new pressure data
       const newPresData = data.map(e => {
-        return {pressure: e.Pressure, time: e.Time - timeOffset}
+        return {Pressure: e.Pressure, time: e.Time - timeOffset}
       })
-      setPresData(newPresData);
+      const newPresPred = prediction.map(e => {
+        return {'Pressure Prediction': e.Pressure, time: e.Time - timeOffset}
+      })
+      setPresData([...newPresData, ...newPresPred]);
       // setting new TVOC data
       const newTVOCData = data.map(e => {
         return {TVOC: e.TVOC, time: e.Time - timeOffset}
@@ -125,26 +142,22 @@ export default function Beacon(props) {
       setTVOCData(newTVOCData);
       // setting new temperature data
       const newTempData = data.map(e => {
-        return {temperature: e.Temperature, time: e.Time - timeOffset}
+        return {Temperature: e.Temperature, time: e.Time - timeOffset}
       })
-      setTempData(newTempData);
+      const newTempPred = prediction.map(e => {
+        return {'Temperature Prediction': e.Temperature, time: e.Time - timeOffset}
+      })
+      setTempData([...newTempData, ...newTempPred]);
     }
    
-  }, [data])
-
-
-  const [rot, setRot] = useState(0);
-
-  const incRot = () => {
-    setRot(rot + 45);
-  }
+  }, [data, prediction])
 
 
   return(
     <div>
-      <ArrowUpwardIcon 
+      {/* <ArrowUpwardIcon 
         style={{transform: `rotate(${rot}deg)`}}
-      />
+      /> */}
       <PlaceIcon 
         style={{fontSize: 50}} 
         color="secondary"

@@ -13,7 +13,7 @@ import {
   TablePagination,
   TableRow,
  } from '@material-ui/core';
-import { LineChart, Line, CartesianGrid, XAxis, YAxis, Label, ResponsiveContainer, Tooltip } from 'recharts';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Label, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const useStyles = makeStyles(theme => ({
   tableContainer: {
@@ -51,11 +51,13 @@ export default function CO2(props) {
             <div className={classes.graphContainer}>
               {/* <h3 className={classes.tableTitle}>Chart Title</h3> */}
               <LineChart width={600} height={300} data={data}>
-                <Line type="monotone" dataKey="CO2" stroke="#8884d8" />
+                <Line dot={false} type="monotone" dataKey="CO2" stroke="#8884d8" />
+                {/* <Line dot={false} type="monotone" dataKey="CO2 Prediction" stroke="#14e05f" /> */}
                 <CartesianGrid stroke="#ccc" />
                 <XAxis dataKey="time" />
                 <YAxis/>
                 <Tooltip />
+                <Legend />
               </LineChart>
             </div>
           </Grid>
@@ -68,7 +70,7 @@ export default function CO2(props) {
                       Time
                     </TableCell>
                     <TableCell>
-                      CO2 (Parts per million)
+                      CO2 (parts per million)
                     </TableCell>
                   </TableRow>
                 </TableHead>
@@ -85,7 +87,6 @@ export default function CO2(props) {
                   ))}
                 </TableBody>
               </Table>
-
             </TableContainer>
           </Grid>
         </Grid>
