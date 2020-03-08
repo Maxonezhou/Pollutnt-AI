@@ -150,6 +150,7 @@ const heatMapData5 = {
 export default function App() {
   const [prediction, setPrediction] = useState(0);
   const [data, setData] = useState(0);
+  const [fakeData, setFakeData] = useState(0);
   const [value, setValue] = useState(0);
   const [heatMapData, setHeatMapData] = useState(heatMapData0);
 
@@ -192,6 +193,11 @@ export default function App() {
     predictionRef.on('value', (snapshot) => {
       let value = snapshot.val();
       setPrediction(value);
+    })
+    const fakeDataRef = database.ref('Data2');
+    fakeDataRef.on('value', (snapshot) => {
+      let value = snapshot.val();
+      setFakeData(value);
     })
   }, [heatMapData]);
 
@@ -255,22 +261,27 @@ export default function App() {
           <Beacon
             lat={60.05}
             lng={30.45}
+            data={Object.values(fakeData)}
           />
           <Beacon
             lat={60.078}
             lng={30.32}
+            data={Object.values(fakeData)}
           />
           <Beacon
             lat={59.94}
             lng={30.45}
+            data={Object.values(fakeData)}
           />
           <Beacon
             lat={59.94}
             lng={30.59}
+            data={Object.values(fakeData)}
           />
           <Beacon
             lat={60.01}
             lng={30.70}
+            data={Object.values(fakeData)}
           />
 
         </GoogleMapReact>

@@ -148,6 +148,38 @@ export default function Beacon(props) {
         return {'Temperature Prediction': e.Temperature, time: e.Time - timeOffset}
       })
       setTempData([...newTempData, ...newTempPred]);
+    } else if (data && data[0]) {
+      const timeOffset = data[0].Time;
+       // setting new altitude data
+      const newAltData = data.map(e => {
+        return {Altitude: e.Altitude, time: e.Time - timeOffset}
+      });
+      setAltData(newAltData);
+      // setting new CO2 data
+      const newCO2Data = data.map(e => {
+        return {CO2: e.CO2, time: e.Time - timeOffset}
+      })
+      setCO2Data(newCO2Data);
+      // setting new humidity data
+      const newHumData = data.map(e => {
+        return {Humidity: e.Humidity, time: e.Time - timeOffset}
+      })
+      setHumData(newHumData);
+      // setting new pressure data
+      const newPresData = data.map(e => {
+        return {Pressure: e.Pressure, time: e.Time - timeOffset}
+      })
+      setPresData(newPresData);
+      // setting new TVOC data
+      const newTVOCData = data.map(e => {
+        return {TVOC: e.TVOC, time: e.Time - timeOffset}
+      })
+      setTVOCData(newTVOCData);
+      // setting new temperature data
+      const newTempData = data.map(e => {
+        return {Temperature: e.Temperature, time: e.Time - timeOffset}
+      })
+      setTempData(newTempData);
     }
    
   }, [data, prediction])
@@ -170,7 +202,7 @@ export default function Beacon(props) {
         onClose={handleClose}
       >
         <div className={classes.paper}>
-          <h2>Beacon 123</h2>
+          <h2>Beacon Data</h2>
           <div className={classes.root}>
             <AppBar position="static" color="default">
               <Tabs
