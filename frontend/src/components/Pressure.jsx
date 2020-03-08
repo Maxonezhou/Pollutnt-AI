@@ -1,15 +1,38 @@
 import React, { useState } from 'react';
 import LineGraph from './LineGraph';
 import { makeStyles } from '@material-ui/core/styles';
-import { Container, Grid, Button } from '@material-ui/core';
+import { 
+  Container,
+  Grid,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+ } from '@material-ui/core';
+import { LineChart, Line, CartesianGrid, XAxis, YAxis, Label, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const useStyles = makeStyles(theme => ({
   tableContainer: {
-    display: 'flex'
+    maxHeight: 450,
+    overflowY: 'auto'
   },
   tableStyle: {
     flex: 2,
   },
+  graphContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    margin: 20
+  },
+  graphTitle: {
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  }
+
 
 }));
 
@@ -25,10 +48,46 @@ export default function Pressure(props) {
       <Container>
         <Grid container spacing={1}>
           <Grid item md={7}>
-            <LineGraph className={classes.tableStyle} data={data} dataKey="pressure" />
+            <div className={classes.graphContainer}>
+              {/* <h3 className={classes.tableTitle}>Chart Title</h3> */}
+              <LineChart width={600} height={300} data={data}>
+                <Line dot={false} type="monotone" dataKey="Pressure" stroke="#8884d8" />
+                <Line dot={false} type="monotone" dataKey="Pressure Prediction" stroke="#14e05f" />
+                <CartesianGrid stroke="#ccc" />
+                <XAxis dataKey="time" />
+                <YAxis/>
+                <Tooltip />
+                <Legend />
+              </LineChart>
+            </div>
           </Grid>
           <Grid item md={5}>
-            weewoo
+            <TableContainer className={classes.tableContainer}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>
+                      Time
+                    </TableCell>
+                    <TableCell>
+                      Pressure (mmHg)
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.map(data => (
+                    <TableRow>
+                      <TableCell>
+                        {data.time}
+                      </TableCell>
+                      <TableCell>
+                        {data.Pressure}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
           </Grid>
         </Grid>
       </Container>
