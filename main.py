@@ -6,6 +6,7 @@ import datetime as dt
 import threading
 import csv
 from train_models import *
+from azure_utils import *
 
 def parse_data(str, type):
     if type == "data":
@@ -45,8 +46,13 @@ firebase = init_firebase()
 print("Connected to Firebase")
 db = firebase.database()
 data_count = 0
+total_tvoc = 0
+average_tvoc = 0
+total_co2 = 0
+average_co2 = 0
+num_datapoints = 0
 while True:
-    if data_count >= 10:
+    if data_count >= 100:
         all_pred_data = db.child("Forecast").get()
         all_data = db.child("Data").get()
         all_forecast_data = db.child("Forecast").get()
@@ -143,6 +149,21 @@ while True:
         upload_data = {"Time":curr_time,"CO2":data.get("CO2"),"TVOC":data.get("TVOC"),"Pressure":data.get("Pressure"),"Altitude":data.get("Altitude"),"Temperature":data.get("Temperature"),"Humidity":data.get("Humidity")}
         print(upload_data)
         print("\n")
+        total_tvoc = total_tvoc + data.get("TVOC")
+        total_co2 = total_co2 + data.get("CO2")
+        num_datapoints = num_datapoints + 1
+        average_tvoc = total_tvoc / num_datapoints
+        average_co2 = total_co2 / num_datapoints
+        if average_co2 == 0:
+            average_co2 = 1
+        if average_tvoc == 0:
+            average_tvoc = 1
+        # print(average)
+        if (data.get("TVOC") - average_tvoc) / average_tvoc > 0.5:
+            detect_anomaly()
+            client.publish('anomalyTVOC', payload='ANOMALY!')
+        if (data.get("CO2") - average_co2) / average_co2 > 0.5:
+            client.publish('anomalyCO2', payload='ANOMALY')
         db.child("Data").child(str(curr_time)).set(upload_data)
     else:
         curr_time = curr_time + data.get("i") * 86400
