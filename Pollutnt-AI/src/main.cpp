@@ -19,8 +19,8 @@
 #define SSID "Green Lantern Far"
 #define PASSWORD "lifamily5676007"
 
-#define FIREBASE_HOST "hacktech2020-88888.firebaseio.com"
-#define FIREBASE_AUTH "M5BN2JFJwWPFJ5VaXfVea7KIVQQInocorRFEwVae"
+#define FIREBASE_HOST ""
+#define FIREBASE_AUTH ""
 
 // CSS811
 #define CSS811_ADDR 0x5B
