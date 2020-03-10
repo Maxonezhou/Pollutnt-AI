@@ -5,7 +5,7 @@
 
 #define TIME_OFFSET 0UL * 3600UL // UTC + 0 hour
 
-String api_key = "c2fc337039572f83ee5c25dc2ea92f20";
+String api_key = "";
 String longitude = "-75.697189";
 String latitude = "45.421532";
 String units = "si";

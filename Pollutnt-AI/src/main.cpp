@@ -104,13 +104,37 @@ void callback(char* topic, byte* payload, unsigned int length) {
   // Get topic name as string
   String topicString(t);
 
-  if (topicString.startsWith("test"))
+  if (topicString.startsWith("anomalyTVOC"))
   {
-    Serial.println("[INFO] Recycling Motor Recieved Message");
+    Serial.println("[INFO] Recieved TVOC anomaly from Solace");
+    Serial.println("[ALERT] Anomaly detected in TVOC levels");
+    for (int i = 0; i < 5; i++)
+    {
+      digitalWrite(CCS811_LED, HIGH);
+      digitalWrite(MLP3115A2_LED, HIGH);
+      digitalWrite(DHT11_LED, HIGH);
+      delay(1000);
+      digitalWrite(CCS811_LED, LOW);
+      digitalWrite(MLP3115A2_LED, LOW);
+      digitalWrite(DHT11_LED, LOW);
+      delay(1000);
+    }
   }
-  if (topicString.startsWith("test2"))
+  if (topicString.startsWith("anomalyCO2"))
   {
-    Serial.println("[INFO] Trash Motor Recieved Message");
+    Serial.println("[INFO] Recieved CO2 anomaly from Solace");
+    Serial.println("[ALERT] Anomaly detected in Co2 levels");
+    for (int i = 0; i < 5; i++)
+    {
+      digitalWrite(CCS811_LED, HIGH);
+      digitalWrite(MLP3115A2_LED, HIGH);
+      digitalWrite(DHT11_LED, HIGH);
+      delay(1000);
+      digitalWrite(CCS811_LED, LOW);
+      digitalWrite(MLP3115A2_LED, LOW);
+      digitalWrite(DHT11_LED, LOW);
+      delay(1000);
+    }
   }
 }
 
@@ -197,8 +221,8 @@ boolean mqttReconnect() {
     digitalWrite(MQTT_CONNECTED_LED, HIGH);
     // Subscribe to global drive commands
     // Subscription
-
-    client.subscribe("test");
+    client.subscribe("anomalyTVOC");
+    client.subscribe("anomalyCO2");
   } else {
     Serial.println("[ERROR] Not Connected");
   }
@@ -336,7 +360,7 @@ void loop() {
 
   printAverageTemp(DHT11_temp, MLP3115A2_temp, ave_temp);
 
-  /*if (fetchWeather % 50 == 3)
+  if (fetchWeather % 50 == 3)
   {
     getCurrentWeather(precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
   }
@@ -354,7 +378,7 @@ void loop() {
         Serial.println("[INFO] Data just pushed to Solce PubSub+ under topic 'forecast'");
       }
     }
-  }*/
+  }
 
   char result[1024];
   sprintf(result, "%d, %d, %f, %f, %f, %f, %f, %d, %d, %f, %f, %d", CO2, TVOC, (MLP3115A2_pressure / 3377.0), 70.0, ave_temp, DHT11_humidity, precipIntensity, precipType, precipProbability, windSpeed, windGust, windBearing);
